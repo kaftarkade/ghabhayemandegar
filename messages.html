@@ -119,6 +119,89 @@ const memoryUser = localStorage.getItem("memoryUser");
 if (loggedIn !== "true" || !memoryUser) {
     window.location.href = "login.html";
 }
+
+    <!-- ================= NAVBAR ================= -->
+
+    <header class="navbar">
+
+    <div class="logo">
+        قاب‌های ماندگار
+    </div>
+
+    <!-- دکمه سه خط -->
+    <input type="checkbox" id="menu-toggle">
+
+    <label for="menu-toggle" class="menu-button">
+        <span></span>
+        <span></span>
+        <span></span>
+    </label>
+
+
+    <!-- منوی دسکتاپ -->
+    <nav class="desktop-nav">
+        <a href="login.html" id="accountLink">
+    👤 ورود / ثبت‌نام
+</a>
+
+<a href="messages.html">💬 پیام‌رسان</a>
+        
+        <a href="index.html">خانه</a>
+        <a href="gallery.html">تصاویر</a>
+        <a href="musics.html">آهنگ</a>
+    </nav>
+
+
+    <!-- منوی موبایل -->
+    <nav class="mobile-menu">
+
+        <!-- حساب کاربری -->
+
+<a href="login.html" id="accountLink">
+    👤 ورود / ثبت‌نام
+</a>
+
+<a href="messages.html">💬 پیام‌رسان</a>
+
+        <a href="index.html">
+             خانه
+        </a>
+
+        <a href="gallery.html">
+             تصاویر
+        </a>
+
+        <a href="musics.html">
+             آهنگ
+        </a>
+
+      <a href="https://eitaa.com/eiti_lari/17">
+            ایتی لاری
+      </a>
+
+      <a href="https://eitaa.com/@matin_7451">
+           ارتباط با ما
+      </a>
+
+<!-- تغییر حالت روشن / تاریک -->
+
+<div class="theme-switch">
+
+    <input type="checkbox" id="theme-toggle">
+
+    <label for="theme-toggle" class="theme-button">
+
+        <span class="sun">☀️</span>
+        <span class="moon">🌙</span>
+
+    </label>
+
+</div>
+
+    </nav>
+
+    </header>
+
 </script>
 
     <div class="messages-container">
@@ -229,12 +312,18 @@ sendMessage.addEventListener("click", async function () {
 
         alert("پیام ارسال شد.");
 
-    } catch (error) {
+} catch (error) {
 
-        console.error(error);
-        alert("ارسال پیام انجام نشد.");
+    console.error("APPWRITE ERROR:", error);
 
-    }
+    alert(
+        "خطا:\n" +
+        (error.message || "خطای نامشخص") +
+        "\n\nCode: " +
+        (error.code || "-")
+    );
+
+} 
 
 });
 </script>
