@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>پیام‌رسان | قاب‌های ماندگار</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: #09090d;
+            color: white;
+            font-family: sans-serif;
+            min-height: 100vh;
+        }
+
+        .messages-container {
+            width: 100%;
+            max-width: 700px;
+            margin: auto;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .messages-header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            background: rgba(10,10,15,0.9);
+        }
+
+        .messages-header h1 {
+            font-size: 22px;
+        }
+
+        .messages-area {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            overflow-y: auto;
+        }
+
+        .message {
+            max-width: 75%;
+            padding: 10px 14px;
+            border-radius: 15px;
+            background: #17171f;
+            align-self: flex-start;
+        }
+
+        .message.mine {
+            background: linear-gradient(
+                135deg,
+                #a855f7,
+                #ec4899
+            );
+
+            align-self: flex-end;
+        }
+
+        .message-input-area {
+            display: flex;
+            gap: 8px;
+            padding: 15px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            background: #0d0d12;
+        }
+
+        #messageInput {
+            flex: 1;
+            padding: 12px 15px;
+            border: none;
+            outline: none;
+            border-radius: 12px;
+            background: #191922;
+            color: white;
+            font-size: 15px;
+        }
+
+        #sendMessage {
+            border: none;
+            border-radius: 12px;
+            padding: 0 20px;
+            background: linear-gradient(
+                135deg,
+                #a855f7,
+                #ec4899
+            );
+            color: white;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<script>
+const loggedIn = localStorage.getItem("loggedIn");
+const memoryUser = localStorage.getItem("memoryUser");
+
+if (loggedIn !== "true" || !memoryUser) {
+    window.location.href = "login.html";
+}
+</script>
+
+    <div class="messages-container">
+
+        <header class="messages-header">
+
+            <h1>
+                پیام‌رسان
+            </h1>
+
+        </header>
+
+
+        <main
+            class="messages-area"
+            id="messagesArea">
+
+        </main>
+
+
+        <div class="message-input-area">
+
+            <input
+                type="text"
+                id="messageInput"
+                placeholder="پیامت رو بنویس..."
+                autocomplete="off"
+            >
+
+            <button
+                id="sendMessage">
+                ارسال
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- Appwrite -->
+
+    <script src="https://cdn.jsdelivr.net/npm/appwrite@17.0.0"></script>
+
+<script>
+/* =========================================================
+   APPWRITE MESSAGES
+========================================================= */
+
+const messagesClient = new Appwrite.Client();
+
+messagesClient
+    .setEndpoint("https://cloud.appwrite.io/v1")
+    .setProject("6ac3b38f000976364cad");
+
+const messagesDatabase =
+    new Appwrite.Databases(messagesClient);
+
+const MESSAGES_DATABASE_ID =
+    "6ac3b50f001bdd8488ff";
+
+const MESSAGES_TABLE_ID =
+    "6ac3b51800052942e6b5";
+</script>
+
+<script>
+/* =========================================================
+   SEND MESSAGE
+========================================================= */
+
+const messageInput = document.getElementById("messageInput");
+const sendMessage = document.getElementById("sendMessage");
+
+sendMessage.addEventListener("click", async function () {
+
+    const text = messageInput.value.trim();
+
+    if (!text) return;
+
+    const user = JSON.parse(localStorage.getItem("memoryUser"));
+
+    if (!user) {
+        alert("ابتدا وارد حساب کاربری شوید.");
+        return;
+    }
+
+    try {
+
+        const tablesDB = new Appwrite.TablesDB(messagesClient);
+
+        await tablesDB.createRow({
+            databaseId: MESSAGES_DATABASE_ID,
+            tableId: MESSAGES_TABLE_ID,
+            rowId: Appwrite.ID.unique(),
+
+            data: {
+                name: user.name,
+                phone: user.phone,
+                joindate: user.joinDate || "",
+                userid: user.phone,
+                username: user.name,
+                massage: text,
+                createdat: new Date().toISOString(),
+                reciever: "all"
+            }
+        });
+
+        messageInput.value = "";
+
+        alert("پیام ارسال شد.");
+
+    } catch (error) {
+
+        console.error(error);
+        alert("ارسال پیام انجام نشد.");
+
+    }
+
+});
+</script>
+
+<script>
+/* =========================================================
+   LOAD SAVED MESSAGES
+========================================================= */
+
+const messagesArea = document.getElementById("messagesArea");
+
+async function loadMessages() {
+
+    try {
+
+        const tablesDB = new Appwrite.TablesDB(messagesClient);
+
+        const response = await tablesDB.listRows({
+            databaseId: MESSAGES_DATABASE_ID,
+            tableId: MESSAGES_TABLE_ID,
+            queries: [
+                Appwrite.Query.orderAsc("$sequence")
+            ]
+        });
+
+        messagesArea.innerHTML = "";
+
+        response.rows.forEach(function(row) {
+
+            const message = document.createElement("div");
+
+            message.className = "message";
+
+            message.textContent = row.massage || "";
+
+            messagesArea.appendChild(message);
+
+        });
+
+    } catch (error) {
+
+        console.error("خطا در دریافت پیام‌ها:", error);
+
+    }
+}
+
+loadMessages();
+</script>
+
+</body>
+
+</html>

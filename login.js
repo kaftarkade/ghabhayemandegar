@@ -1,4 +1,31 @@
 /* =========================================================
+   APPWRITE
+========================================================= */
+
+const appwriteClient = new Appwrite.Client();
+
+appwriteClient
+    .setEndpoint("https://cloud.appwrite.io/v1")
+.setProject('6ac3b38f000976364cad'); 
+
+const appwriteAccount =
+    new Appwrite.Account(appwriteClient);
+
+/*
+
+/* =========================================================
+   APPWRITE DATABASE
+========================================================= */
+
+const appwriteDatabases =
+    new Appwrite.Databases(appwriteClient);
+
+const MEMORY_DATABASE_ID =
+    "6ac3b50f001bdd8488ff";
+
+const MEMORY_TABLE_ID =
+    "6ac3b51800052942e6b5";
+     =========================================================
    LOGIN / REGISTER
 ========================================================= */
 
