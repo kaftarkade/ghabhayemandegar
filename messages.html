@@ -62,6 +62,7 @@
             border-radius: 15px;
             background: #17171f;
             align-self: flex-start;
+            word-break: break-word;
         }
 
         .message.mine {
@@ -93,6 +94,10 @@
             font-size: 15px;
         }
 
+        #messageInput::placeholder {
+            color: #888;
+        }
+
         #sendMessage {
             border: none;
             border-radius: 12px;
@@ -107,6 +112,10 @@
             font-size: 15px;
         }
 
+        #sendMessage:active {
+            transform: scale(0.97);
+        }
+
     </style>
 
 </head>
@@ -114,36 +123,109 @@
 
 <body>
 
-<!-- Appwrite -->
+
+<!-- =========================================================
+     MESSAGES
+========================================================= -->
+
+<div class="messages-container">
+
+    <header class="messages-header">
+
+        <h1>
+            پیام‌رسان
+        </h1>
+
+    </header>
+
+
+    <main
+        class="messages-area"
+        id="messagesArea">
+
+    </main>
+
+
+    <div class="message-input-area">
+
+        <input
+            type="text"
+            id="messageInput"
+            placeholder="پیامت رو بنویس..."
+            autocomplete="off"
+        >
+
+        <button
+            id="sendMessage">
+            ارسال
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     APPWRITE
+========================================================= -->
+
 <script src="https://cdn.jsdelivr.net/npm/appwrite@17.0.0"></script>
 
+
 <script>
+
 /* =========================================================
    LOGIN CHECK
 ========================================================= */
 
-const loggedIn = localStorage.getItem("loggedIn");
-const memoryUser = localStorage.getItem("memoryUser");
+const loggedIn =
+    localStorage.getItem("loggedIn");
 
-if (loggedIn !== "true" || !memoryUser) {
-    window.location.href = "login.html";
+const memoryUser =
+    localStorage.getItem("memoryUser");
+
+
+if (
+    loggedIn !== "true" ||
+    !memoryUser
+) {
+
+    window.location.href =
+        "login.html";
+
 }
 
 
 /* =========================================================
-   APPWRITE
+   APPWRITE CLIENT
 ========================================================= */
 
-const messagesClient = new Appwrite.Client();
+const messagesClient =
+    new Appwrite.Client();
+
 
 messagesClient
-    .setEndpoint("https://cloud.appwrite.io/v1")
-    .setProject("6ac3b38f000976364cad");
+    .setEndpoint(
+        "https://cloud.appwrite.io/v1"
+    )
+    .setProject(
+        "6ac3b38f000976364cad"
+    );
 
-const tablesDB = new Appwrite.TablesDB(messagesClient);
+
+/* =========================================================
+   TABLES DB
+========================================================= */
+
+const tablesDB =
+    new Appwrite.TablesDB(
+        messagesClient
+    );
+
 
 const MESSAGES_DATABASE_ID =
     "6ac3b50f001bdd8488ff";
+
 
 const MESSAGES_TABLE_ID =
     "6ac3b51800052942e6b5";
@@ -154,13 +236,21 @@ const MESSAGES_TABLE_ID =
 ========================================================= */
 
 const messageInput =
-    document.getElementById("messageInput");
+    document.getElementById(
+        "messageInput"
+    );
+
 
 const sendMessage =
-    document.getElementById("sendMessage");
+    document.getElementById(
+        "sendMessage"
+    );
+
 
 const messagesArea =
-    document.getElementById("messagesArea");
+    document.getElementById(
+        "messagesArea"
+    );
 
 
 /* =========================================================
@@ -171,27 +261,70 @@ async function loadMessages() {
 
     try {
 
-        const response = await tablesDB.listRows({
-            databaseId: MESSAGES_DATABASE_ID,
-            tableId: MESSAGES_TABLE_ID
-        });
+        const response =
+            await tablesDB.listRows({
+
+                databaseId:
+                    MESSAGES_DATABASE_ID,
+
+                tableId:
+                    MESSAGES_TABLE_ID
+
+            });
+
 
         messagesArea.innerHTML = "";
 
-        response.rows.forEach(function(row) {
 
-            const message = document.createElement("div");
+        const currentUser =
+            JSON.parse(
+                localStorage.getItem(
+                    "memoryUser"
+                )
+            );
 
-            message.className = "message";
 
-            message.textContent = row.massage || "";
+        response.rows.forEach(
+            function(row) {
 
-            messagesArea.appendChild(message);
+                const message =
+                    document.createElement(
+                        "div"
+                    );
 
-        });
+
+                message.classList.add(
+                    "message"
+                );
+
+
+                message.textContent =
+                    row.massage || "";
+
+
+                if (
+                    currentUser &&
+                    row.userid === currentUser.phone
+                ) {
+
+                    message.classList.add(
+                        "mine"
+                    );
+
+                }
+
+
+                messagesArea.appendChild(
+                    message
+                );
+
+            }
+        );
+
 
         messagesArea.scrollTop =
             messagesArea.scrollHeight;
+
 
     } catch (error) {
 
@@ -201,6 +334,7 @@ async function loadMessages() {
         );
 
     }
+
 }
 
 
@@ -210,17 +344,25 @@ async function loadMessages() {
 
 sendMessage.addEventListener(
     "click",
-    async function () {
+    async function() {
+
 
         const text =
             messageInput.value.trim();
 
-        if (!text) return;
+
+        if (!text) {
+
+            return;
+
+        }
 
 
         const user =
             JSON.parse(
-                localStorage.getItem("memoryUser")
+                localStorage.getItem(
+                    "memoryUser"
+                )
             );
 
 
@@ -231,10 +373,16 @@ sendMessage.addEventListener(
             );
 
             return;
+
         }
 
 
+        sendMessage.disabled =
+            true;
+
+
         try {
+
 
             await tablesDB.createRow({
 
@@ -272,28 +420,41 @@ sendMessage.addEventListener(
 
                     reciever:
                         "all"
+
                 }
 
             });
 
 
-            messageInput.value = "";
+            messageInput.value =
+                "";
+
 
             await loadMessages();
 
 
         } catch (error) {
 
+
             console.error(
                 "APPWRITE SEND ERROR:",
                 error
             );
 
+
             alert(
                 "خطا در ارسال پیام:\n\n" +
-                (error.message ||
-                "خطای نامشخص")
+                (
+                    error.message ||
+                    "خطای نامشخص"
+                )
             );
+
+
+        } finally {
+
+            sendMessage.disabled =
+                false;
 
         }
 
@@ -307,7 +468,7 @@ sendMessage.addEventListener(
 
 messageInput.addEventListener(
     "keydown",
-    function (event) {
+    function(event) {
 
         if (
             event.key === "Enter" &&
@@ -331,6 +492,7 @@ messageInput.addEventListener(
 loadMessages();
 
 </script>
+
 
 </body>
 
