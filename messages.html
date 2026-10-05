@@ -8,6 +8,8 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
+    <link rel="stylesheet" href="style.css">
+
     <title>پیام‌رسان | قاب‌های ماندگار</title>
 
     <style>
@@ -112,7 +114,14 @@
 
 <body>
 
+<!-- Appwrite -->
+<script src="https://cdn.jsdelivr.net/npm/appwrite@17.0.0"></script>
+
 <script>
+/* =========================================================
+   LOGIN CHECK
+========================================================= */
+
 const loggedIn = localStorage.getItem("loggedIn");
 const memoryUser = localStorage.getItem("memoryUser");
 
@@ -120,134 +129,9 @@ if (loggedIn !== "true" || !memoryUser) {
     window.location.href = "login.html";
 }
 
-    <!-- ================= NAVBAR ================= -->
 
-    <header class="navbar">
-
-    <div class="logo">
-        قاب‌های ماندگار
-    </div>
-
-    <!-- دکمه سه خط -->
-    <input type="checkbox" id="menu-toggle">
-
-    <label for="menu-toggle" class="menu-button">
-        <span></span>
-        <span></span>
-        <span></span>
-    </label>
-
-
-    <!-- منوی دسکتاپ -->
-    <nav class="desktop-nav">
-        <a href="login.html" id="accountLink">
-    👤 ورود / ثبت‌نام
-</a>
-
-<a href="messages.html">💬 پیام‌رسان</a>
-        
-        <a href="index.html">خانه</a>
-        <a href="gallery.html">تصاویر</a>
-        <a href="musics.html">آهنگ</a>
-    </nav>
-
-
-    <!-- منوی موبایل -->
-    <nav class="mobile-menu">
-
-        <!-- حساب کاربری -->
-
-<a href="login.html" id="accountLink">
-    👤 ورود / ثبت‌نام
-</a>
-
-<a href="messages.html">💬 پیام‌رسان</a>
-
-        <a href="index.html">
-             خانه
-        </a>
-
-        <a href="gallery.html">
-             تصاویر
-        </a>
-
-        <a href="musics.html">
-             آهنگ
-        </a>
-
-      <a href="https://eitaa.com/eiti_lari/17">
-            ایتی لاری
-      </a>
-
-      <a href="https://eitaa.com/@matin_7451">
-           ارتباط با ما
-      </a>
-
-<!-- تغییر حالت روشن / تاریک -->
-
-<div class="theme-switch">
-
-    <input type="checkbox" id="theme-toggle">
-
-    <label for="theme-toggle" class="theme-button">
-
-        <span class="sun">☀️</span>
-        <span class="moon">🌙</span>
-
-    </label>
-
-</div>
-
-    </nav>
-
-    </header>
-
-</script>
-
-    <div class="messages-container">
-
-        <header class="messages-header">
-
-            <h1>
-                پیام‌رسان
-            </h1>
-
-        </header>
-
-
-        <main
-            class="messages-area"
-            id="messagesArea">
-
-        </main>
-
-
-        <div class="message-input-area">
-
-            <input
-                type="text"
-                id="messageInput"
-                placeholder="پیامت رو بنویس..."
-                autocomplete="off"
-            >
-
-            <button
-                id="sendMessage">
-                ارسال
-            </button>
-
-        </div>
-
-    </div>
-
-
-    <!-- Appwrite -->
-
-    <script src="https://cdn.jsdelivr.net/npm/appwrite@17.0.0"></script>
-
-<script>
 /* =========================================================
-   APPWRITE MESSAGES
+   APPWRITE
 ========================================================= */
 
 const messagesClient = new Appwrite.Client();
@@ -256,97 +140,40 @@ messagesClient
     .setEndpoint("https://cloud.appwrite.io/v1")
     .setProject("6ac3b38f000976364cad");
 
-const messagesDatabase =
-    new Appwrite.Databases(messagesClient);
+const tablesDB = new Appwrite.TablesDB(messagesClient);
 
 const MESSAGES_DATABASE_ID =
     "6ac3b50f001bdd8488ff";
 
 const MESSAGES_TABLE_ID =
     "6ac3b51800052942e6b5";
-</script>
 
-<script>
+
 /* =========================================================
-   SEND MESSAGE
+   ELEMENTS
 ========================================================= */
 
-const messageInput = document.getElementById("messageInput");
-const sendMessage = document.getElementById("sendMessage");
+const messageInput =
+    document.getElementById("messageInput");
 
-sendMessage.addEventListener("click", async function () {
+const sendMessage =
+    document.getElementById("sendMessage");
 
-    const text = messageInput.value.trim();
+const messagesArea =
+    document.getElementById("messagesArea");
 
-    if (!text) return;
 
-    const user = JSON.parse(localStorage.getItem("memoryUser"));
-
-    if (!user) {
-        alert("ابتدا وارد حساب کاربری شوید.");
-        return;
-    }
-
-    try {
-
-        const tablesDB = new Appwrite.TablesDB(messagesClient);
-
-        await tablesDB.createRow({
-            databaseId: MESSAGES_DATABASE_ID,
-            tableId: MESSAGES_TABLE_ID,
-            rowId: Appwrite.ID.unique(),
-
-            data: {
-                name: user.name,
-                phone: user.phone,
-                joindate: user.joinDate || "",
-                userid: user.phone,
-                username: user.name,
-                massage: text,
-                createdat: new Date().toISOString(),
-                reciever: "all"
-            }
-        });
-
-        messageInput.value = "";
-
-        alert("پیام ارسال شد.");
-
-} catch (error) {
-
-    console.error("APPWRITE ERROR:", error);
-
-    alert(
-        "خطا:\n" +
-        (error.message || "خطای نامشخص") +
-        "\n\nCode: " +
-        (error.code || "-")
-    );
-
-} 
-
-});
-</script>
-
-<script>
 /* =========================================================
-   LOAD SAVED MESSAGES
+   LOAD MESSAGES
 ========================================================= */
-
-const messagesArea = document.getElementById("messagesArea");
 
 async function loadMessages() {
 
     try {
 
-        const tablesDB = new Appwrite.TablesDB(messagesClient);
-
         const response = await tablesDB.listRows({
             databaseId: MESSAGES_DATABASE_ID,
-            tableId: MESSAGES_TABLE_ID,
-            queries: [
-                Appwrite.Query.orderAsc("$sequence")
-            ]
+            tableId: MESSAGES_TABLE_ID
         });
 
         messagesArea.innerHTML = "";
@@ -363,14 +190,146 @@ async function loadMessages() {
 
         });
 
+        messagesArea.scrollTop =
+            messagesArea.scrollHeight;
+
     } catch (error) {
 
-        console.error("خطا در دریافت پیام‌ها:", error);
+        console.error(
+            "APPWRITE LOAD ERROR:",
+            error
+        );
 
     }
 }
 
+
+/* =========================================================
+   SEND MESSAGE
+========================================================= */
+
+sendMessage.addEventListener(
+    "click",
+    async function () {
+
+        const text =
+            messageInput.value.trim();
+
+        if (!text) return;
+
+
+        const user =
+            JSON.parse(
+                localStorage.getItem("memoryUser")
+            );
+
+
+        if (!user) {
+
+            alert(
+                "ابتدا وارد حساب کاربری شوید."
+            );
+
+            return;
+        }
+
+
+        try {
+
+            await tablesDB.createRow({
+
+                databaseId:
+                    MESSAGES_DATABASE_ID,
+
+                tableId:
+                    MESSAGES_TABLE_ID,
+
+                rowId:
+                    Appwrite.ID.unique(),
+
+                data: {
+
+                    name:
+                        user.name || "",
+
+                    phone:
+                        user.phone || "",
+
+                    joindate:
+                        user.joinDate || "",
+
+                    userid:
+                        user.phone || "",
+
+                    username:
+                        user.name || "",
+
+                    massage:
+                        text,
+
+                    createdat:
+                        new Date().toISOString(),
+
+                    reciever:
+                        "all"
+                }
+
+            });
+
+
+            messageInput.value = "";
+
+            await loadMessages();
+
+
+        } catch (error) {
+
+            console.error(
+                "APPWRITE SEND ERROR:",
+                error
+            );
+
+            alert(
+                "خطا در ارسال پیام:\n\n" +
+                (error.message ||
+                "خطای نامشخص")
+            );
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   ENTER TO SEND
+========================================================= */
+
+messageInput.addEventListener(
+    "keydown",
+    function (event) {
+
+        if (
+            event.key === "Enter" &&
+            !event.shiftKey
+        ) {
+
+            event.preventDefault();
+
+            sendMessage.click();
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   START
+========================================================= */
+
 loadMessages();
+
 </script>
 
 </body>
