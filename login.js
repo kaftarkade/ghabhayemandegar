@@ -6,12 +6,11 @@ const appwriteClient = new Appwrite.Client();
 
 appwriteClient
     .setEndpoint("https://cloud.appwrite.io/v1")
-.setProject('6ac3b38f000976364cad'); 
+    .setProject("6ac3b38f000976364cad");
 
 const appwriteAccount =
     new Appwrite.Account(appwriteClient);
 
-/*
 
 /* =========================================================
    APPWRITE DATABASE
@@ -25,17 +24,26 @@ const MEMORY_DATABASE_ID =
 
 const MEMORY_TABLE_ID =
     "6ac3b51800052942e6b5";
-     =========================================================
+
+
+/* =========================================================
    LOGIN / REGISTER
 ========================================================= */
 
-const loginTab = document.getElementById("loginTab");
-const registerTab = document.getElementById("registerTab");
+const loginTab =
+    document.getElementById("loginTab");
 
-const loginForm = document.getElementById("loginForm");
-const registerForm = document.getElementById("registerForm");
+const registerTab =
+    document.getElementById("registerTab");
 
-const tabs = document.querySelector(".tabs");
+const loginForm =
+    document.getElementById("loginForm");
+
+const registerForm =
+    document.getElementById("registerForm");
+
+const tabs =
+    document.querySelector(".tabs");
 
 
 /* =========================================================
@@ -85,17 +93,14 @@ passwordButtons.forEach(function (button) {
                 button.dataset.target
             );
 
-
         if (input.type === "password") {
 
             input.type = "text";
-
             button.textContent = "🙈";
 
         } else {
 
             input.type = "password";
-
             button.textContent = "👁";
 
         }
@@ -147,7 +152,6 @@ registerForm.addEventListener(
 
 
         message.textContent = "";
-
         message.className = "message";
 
 
@@ -200,11 +204,18 @@ registerForm.addEventListener(
         /* ساخت حساب */
 
         const user = {
-    name: name,
-    phone: phone,
-    password: password,
-    joinDate: new Date().toLocaleDateString("fa-IR")
-};
+
+            name: name,
+
+            phone: phone,
+
+            password: password,
+
+            joinDate:
+                new Date().toLocaleDateString("fa-IR")
+
+        };
+
 
         localStorage.setItem(
             "memoryUser",
@@ -271,7 +282,6 @@ loginForm.addEventListener(
 
 
         message.textContent = "";
-
         message.className = "message";
 
 
@@ -372,16 +382,22 @@ function updateThemeIcon() {
         )
     ) {
 
-        themeIcon.textContent = "🌙";
+        if (themeIcon) {
+            themeIcon.textContent = "🌙";
+        }
 
     } else {
 
-        themeIcon.textContent = "☀️";
+        if (themeIcon) {
+            themeIcon.textContent = "☀️";
+        }
 
     }
 
 }
 
+
+/* دریافت تم ذخیره شده */
 
 const savedTheme =
     localStorage.getItem("theme");
@@ -398,6 +414,8 @@ if (savedTheme === "light") {
 
 updateThemeIcon();
 
+
+/* تغییر تم */
 
 if (themeToggle) {
 
