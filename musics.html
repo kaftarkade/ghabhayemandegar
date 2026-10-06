@@ -2,6 +2,7 @@
 <html lang="fa" dir="rtl">
 
 <head>
+
     <meta charset="UTF-8">
 
     <meta
@@ -15,10 +16,12 @@
         rel="stylesheet"
         href="style.css"
     >
+
 </head>
 
 
 <body>
+
 
     <!-- =====================================================
          NAVBAR
@@ -45,11 +48,12 @@
             for="menu-toggle"
             class="menu-button"
         >
-            <span></span>
-            <span></span>
-            <span></span>
-        </label>
 
+            <span></span>
+            <span></span>
+            <span></span>
+
+        </label>
 
 
         <!-- ================= DESKTOP NAV ================= -->
@@ -69,7 +73,6 @@
             </a>
 
         </nav>
-
 
 
         <!-- ================= MOBILE NAV ================= -->
@@ -121,7 +124,6 @@
             </a>
 
 
-
             <!-- ================= THEME SWITCH ================= -->
 
             <div class="theme-switch">
@@ -154,6 +156,7 @@
     </header>
 
 
+
     <!-- =====================================================
          MUSIC SECTION
     ====================================================== -->
@@ -162,6 +165,7 @@
         class="music-section"
         id="music"
     >
+
 
         <!-- ================= TITLE ================= -->
 
@@ -180,292 +184,440 @@
 
 
 
-<!-- =====================================================
-     NEW MUSIC PLAYER
-====================================================== -->
+        <!-- =====================================================
+             MUSIC PLAYER
+        ====================================================== -->
 
-<div class="pro-music-player">
+        <div class="pro-music-player">
 
-<!-- =====================================================
-     AUDIO FILES
-====================================================== -->
 
-<audio
-    id="audio0"
-    preload="metadata"
-    src="musics/Final Export (anbar-nesa) - bakalam.mp3"
-></audio>
+            <!-- =================================================
+                 AUDIO FILES
+            ================================================== -->
 
-<audio
-    id="audio1"
-    preload="metadata"
-    src="musics/Final Export (madrese) - bakalam.mp3"
-></audio>
+            <audio
+                id="audio0"
+                preload="metadata"
+                src="musics/Final Export (anbar-nesa) - bakalam.mp3"
+            ></audio>
 
-<audio
-    id="audio2"
-    preload="metadata"
-    src="musics/شهر پایگاه - کفترکده.mp3"
-></audio>
 
-    <!-- اطلاعات آهنگ -->
-    <div class="pro-song-info">
+            <audio
+                id="audio1"
+                preload="metadata"
+                src="musics/Final Export (madrese) - bakalam.mp3"
+            ></audio>
 
-        <div class="pro-song-icon">
-            🎵
+
+            <audio
+                id="audio2"
+                preload="metadata"
+                src="musics/شهر پایگاه - کفترکده.mp3"
+            ></audio>
+
+
+            <audio
+                id="audio3"
+                preload="metadata"
+                src="musics/یک گفت‌وگوی خصوصی.mp3"
+            ></audio>
+
+
+            <audio
+                id="audio4"
+                preload="metadata"
+                src="musics/قایقی خواهم ساخت - ویرگول مدیا.mp3"
+            ></audio>
+
+
+
+            <!-- =================================================
+                 SONG INFO
+            ================================================== -->
+
+            <div class="pro-song-info">
+
+                <div class="pro-song-icon">
+                    🎵
+                </div>
+
+
+                <div class="pro-song-details">
+
+                    <h3 id="proSongTitle">
+                        عنبر نسأ
+                    </h3>
+
+
+                    <p id="proSongArtist">
+                        ابوالفضل جمالی
+                    </p>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- =================================================
+                 PROGRESS
+            ================================================== -->
+
+            <div class="pro-progress-area">
+
+                <span id="proCurrentTime">
+                    00:00
+                </span>
+
+
+                <input
+                    type="range"
+                    id="proProgress"
+                    min="0"
+                    max="100"
+                    value="0"
+                >
+
+
+                <span id="proDuration">
+                    00:00
+                </span>
+
+            </div>
+
+
+
+            <!-- =================================================
+                 CONTROLS
+            ================================================== -->
+
+            <div class="pro-controls">
+
+                <button
+                    type="button"
+                    id="proNext"
+                    class="pro-control-btn"
+                    aria-label="آهنگ بعدی"
+                >
+                    ⏭
+                </button>
+
+
+                <button
+                    type="button"
+                    id="proPlay"
+                    class="pro-play-btn"
+                    aria-label="پخش"
+                >
+                    ▶
+                </button>
+
+
+                <button
+                    type="button"
+                    id="proPrev"
+                    class="pro-control-btn"
+                    aria-label="آهنگ قبلی"
+                >
+                    ⏮
+                </button>
+
+            </div>
+
+
+
+            <!-- =================================================
+                 VOLUME
+            ================================================== -->
+
+            <div class="pro-volume">
+
+                <span>
+                    🔈
+                </span>
+
+
+                <input
+                    type="range"
+                    id="proVolume"
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    value="1"
+                >
+
+
+                <span>
+                    🔊
+                </span>
+
+            </div>
+
+
+
+            <!-- =================================================
+                 DIVIDER
+            ================================================== -->
+
+            <div class="pro-divider"></div>
+
+
+
+            <!-- =================================================
+                 PLAYLIST TITLE
+            ================================================== -->
+
+            <div class="pro-playlist-title">
+
+                <span>
+                    لیست آهنگ‌ها
+                </span>
+
+
+                <span>
+                    ☷
+                </span>
+
+            </div>
+
+
+
+            <!-- =================================================
+                 PLAYLIST
+            ================================================== -->
+
+            <div class="pro-playlist">
+
+
+                <!-- ================= آهنگ 1 ================= -->
+
+                <div
+                    class="pro-track active"
+                    data-index="0"
+                    role="button"
+                    tabindex="0"
+                >
+
+                    <span class="pro-track-number">
+                        01
+                    </span>
+
+
+                    <span class="pro-track-icon">
+                        🎵
+                    </span>
+
+
+                    <span class="pro-track-info">
+
+                        <strong>
+                            عنبر نسأ
+                        </strong>
+
+
+                        <small>
+                            ابوالفضل جمالی
+                        </small>
+
+                    </span>
+
+
+                    <button
+                        type="button"
+                        class="favorite-btn music-favorite-btn"
+                        aria-label="افزودن به موردعلاقه‌ها"
+                    >
+                        ☆
+                    </button>
+
+                </div>
+
+
+
+                <!-- ================= آهنگ 2 ================= -->
+
+                <div
+                    class="pro-track"
+                    data-index="1"
+                    role="button"
+                    tabindex="0"
+                >
+
+                    <span class="pro-track-number">
+                        02
+                    </span>
+
+
+                    <span class="pro-track-icon">
+                        🎵
+                    </span>
+
+
+                    <span class="pro-track-info">
+
+                        <strong>
+                            مدرسه
+                        </strong>
+
+
+                        <small>
+                            جواد ابراهیمی، حسین حق‌خواه، ابوالفضل جمالی، عرفان سرانجام
+                        </small>
+
+                    </span>
+
+
+                    <button
+                        type="button"
+                        class="favorite-btn music-favorite-btn"
+                        aria-label="افزودن به موردعلاقه‌ها"
+                    >
+                        ☆
+                    </button>
+
+                </div>
+
+
+
+                <!-- ================= آهنگ 3 ================= -->
+
+                <div
+                    class="pro-track"
+                    data-index="2"
+                    role="button"
+                    tabindex="0"
+                >
+
+                    <span class="pro-track-number">
+                        03
+                    </span>
+
+
+                    <span class="pro-track-icon">
+                        🎵
+                    </span>
+
+
+                    <span class="pro-track-info">
+
+                        <strong>
+                            شهر پایگاه
+                        </strong>
+
+
+                        <small>
+                            امیر علی پیرمراد - هوش مصنوعی
+                        </small>
+
+                    </span>
+
+
+                    <button
+                        type="button"
+                        class="favorite-btn music-favorite-btn"
+                        aria-label="افزودن به موردعلاقه‌ها"
+                    >
+                        ☆
+                    </button>
+
+                </div>
+
+
+
+                <!-- ================= آهنگ 4 ================= -->
+
+                <div
+                    class="pro-track"
+                    data-index="3"
+                    role="button"
+                    tabindex="0"
+                >
+
+                    <span class="pro-track-number">
+                        04
+                    </span>
+
+
+                    <span class="pro-track-icon">
+                        🎵
+                    </span>
+
+
+                    <span class="pro-track-info">
+
+                        <strong>
+                            پادکست یک گفت‌وگوی خصوصی
+                        </strong>
+
+
+                        <small>
+                            جواد ابراهیمی / ویرگول مدیا
+                        </small>
+
+                    </span>
+
+
+                    <button
+                        type="button"
+                        class="favorite-btn music-favorite-btn"
+                        aria-label="افزودن به موردعلاقه‌ها"
+                    >
+                        ☆
+                    </button>
+
+                </div>
+
+
+
+                <!-- ================= آهنگ 5 ================= -->
+
+                <div
+                    class="pro-track"
+                    data-index="4"
+                    role="button"
+                    tabindex="0"
+                >
+
+                    <span class="pro-track-number">
+                        05
+                    </span>
+
+
+                    <span class="pro-track-icon">
+                        🎵
+                    </span>
+
+
+                    <span class="pro-track-info">
+
+                        <strong>
+                            پادکست قایقی خواهم ساخت
+                        </strong>
+
+
+                        <small>
+                            عرفان سرانجام، امیرعلی پیرمراد، سبحان قادری، رضا اسدی
+                        </small>
+
+                    </span>
+
+
+                    <button
+                        type="button"
+                        class="favorite-btn music-favorite-btn"
+                        aria-label="افزودن به موردعلاقه‌ها"
+                    >
+                        ☆
+                    </button>
+
+                </div>
+
+
+            </div>
+
         </div>
 
-        <div class="pro-song-details">
-
-            <h3 id="proSongTitle">
-                عنبر نسأ
-            </h3>
-
-            <p id="proSongArtist">
-                ابوالفضل جمالی
-            </p>
-
-        </div>
-
-    </div>
-
-
-    <!-- نوار پیشرفت -->
-<div class="pro-progress-area">
-
-    <span id="proCurrentTime">
-        00:00
-    </span>
-
-    <input
-        type="range"
-        id="proProgress"
-        min="0"
-        max="100"
-        value="0"
-    >
-
-    <span>
-        00:00
-    </span>
-
-</div>
-
-
-    <!-- کنترل‌ها -->
-    <div class="pro-controls">
-
-        <button
-            type="button"
-            id="proNext"
-            class="pro-control-btn"
-            aria-label="آهنگ بعدی"
-        >
-            ⏭
-        </button>
-
-
-        <button
-            type="button"
-            id="proPlay"
-            class="pro-play-btn"
-            aria-label="پخش"
-        >
-            ▶
-        </button>
-
-
-        <button
-            type="button"
-            id="proPrev"
-            class="pro-control-btn"
-            aria-label="آهنگ قبلی"
-        >
-            ⏮
-        </button>
-
-    </div>
-
-
-    <!-- کنترل صدا -->
-    <div class="pro-volume">
-
-        <span>
-            🔈
-        </span>
-
-        <input
-            type="range"
-            id="proVolume"
-            min="0"
-            max="1"
-            step="0.01"
-            value="1"
-        >
-        <span>
-            🔊
-        </span>
-    </div>
-
-
-    <!-- خط جداکننده -->
-    <div class="pro-divider"></div>
-
-
-    <!-- لیست آهنگ‌ها -->
-    <div class="pro-playlist-title">
-
-        <span>
-            لیست آهنگ‌ها
-        </span>
-
-        <span>
-            ☷
-        </span>
-
-    </div>
-
-
-    <div class="pro-playlist">
-
-<div class="pro-playlist">
-
-    <!-- ================= آهنگ 1 ================= -->
-
-    <div
-        class="pro-track active"
-        data-index="0"
-        role="button"
-        tabindex="0"
-    >
-
-        <span class="pro-track-number">
-            01
-        </span>
-
-        <span class="pro-track-icon">
-            🎵
-        </span>
-
-        <span class="pro-track-info">
-
-            <strong>
-                عنبر نسأ
-            </strong>
-
-            <small>
-                ابوالفضل جمالی
-            </small>
-
-        </span>
-
-
-        <!-- علاقه‌مندی -->
-
-        <button
-            type="button"
-            class="favorite-btn music-favorite-btn"
-            aria-label="افزودن به موردعلاقه‌ها"
-        >
-            ☆
-        </button>
-
-    </div>
-
-
-
-    <!-- ================= آهنگ 2 ================= -->
-
-    <div
-        class="pro-track"
-        data-index="1"
-        role="button"
-        tabindex="0"
-    >
-
-        <span class="pro-track-number">
-            02
-        </span>
-
-        <span class="pro-track-icon">
-            🎵
-        </span>
-
-        <span class="pro-track-info">
-
-            <strong>
-                مدرسه
-            </strong>
-
-            <small>
-                جواد ابراهیمی، حسین حق‌خواه، ابوالفضل جمالی، عرفان سرانجام
-            </small>
-
-        </span>
-
-
-        <!-- علاقه‌مندی -->
-
-        <button
-            type="button"
-            class="favorite-btn music-favorite-btn"
-            aria-label="افزودن به موردعلاقه‌ها"
-        >
-            ☆
-        </button>
-
-    </div>
-
-
-
-    <!-- ================= آهنگ 3 ================= -->
-
-    <div
-        class="pro-track"
-        data-index="2"
-        role="button"
-        tabindex="0"
-    >
-
-        <span class="pro-track-number">
-            03
-        </span>
-
-        <span class="pro-track-icon">
-            🎵
-        </span>
-
-        <span class="pro-track-info">
-
-            <strong>
-                شهر پایگاه
-            </strong>
-
-            <small>
-                امیر علی پیرمراد - هوش مصنوعی
-            </small>
-
-        </span>
-
-
-        <!-- علاقه‌مندی -->
-
-        <button
-            type="button"
-            class="favorite-btn music-favorite-btn"
-            aria-label="افزودن به موردعلاقه‌ها"
-        >
-            ☆
-        </button>
-
-    </div>
-
-</div>
-    </div>
-
-</div>
-
-
+    </section>
 
 
 
@@ -486,13 +638,18 @@
 
     </footer>
 
+
+
     <!-- =====================================================
          JAVASCRIPT
     ====================================================== -->
 
-<script src="theme.js"></script>
-<script src="music-enhancements.js"></script>
-<script src="music.js"></script>
+    <script src="theme.js"></script>
+
+    <script src="music-enhancements.js"></script>
+
+    <script src="music.js"></script>
+
 
 </body>
 
