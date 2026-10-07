@@ -38,7 +38,14 @@ const chatBox = document.getElementById("chatBox");
 // فعلاً برای تست
 // بعداً این مقدار را از سیستم ورود خود سایت می‌گیریم.
 
-const currentUserId = localStorage.getItem("userId") || "test-user";
+const currentUser = JSON.parse(localStorage.getItem("memoryUser") || "null");
+
+const currentUserId = currentUser?.userid || currentUser?.userId || "";
+
+if (!currentUserId) {
+    alert("ابتدا وارد حساب کاربری خود شوید.");
+    window.location.href = "login.html";
+}
 
 
 // ================================
