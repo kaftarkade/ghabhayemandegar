@@ -695,6 +695,12 @@
     setInterval(function () { sliders.forEach(paint); }, 250);
 
 })();
+
+
+document.addEventListener("contextmenu", function(event) {
+    event.preventDefault();
+});
+
 </script>
 
 </body>
