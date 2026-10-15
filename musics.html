@@ -60,6 +60,17 @@
 
         <nav class="desktop-nav">
 
+<a
+                href="login.html"
+                id="accountLink"
+            >
+                 👤 ورود / ثبت‌نام
+            </a>
+            
+            <a href="massages.html">
+                 💬 پیام‌رسان
+            </a>
+
             <a href="index.html">
                 خانه
             </a>
@@ -68,8 +79,9 @@
                 تصاویر
             </a>
 
-            <a href="musics.html">
-                آهنگ
+
+            <a href="https://eitaa.com/@matin_7451">
+                ارتباط با ما
             </a>
 
         </nav>
@@ -88,7 +100,7 @@
                 👤 ورود / ثبت‌نام
             </a>
 
-            <a href="massages beta.html">
+            <a href="massages.html">
             💬 پیام‌رسان
             </a>
 
@@ -108,7 +120,7 @@
 
             <!-- EITAA -->
 
-<a href="https://s7.uplod.ir:182/d/3w222r4e4hvhuf6tfsnyhl3f6hspze5tvokmhznflylquuiizznqefodrfmmec2d7h6luevk/ghab_haye_mandegar._">دانلود برنامه نسخه قبلی</a>
+<a href="https://abrehamrahi.ir/o/public/2quBbcwi/">دانلود برنامه نسخه قبلی</a>
 </p>
 
             <!-- CONTACT -->
@@ -638,12 +650,52 @@
          JAVASCRIPT
     ====================================================== -->
 
+    <script src="https://cdn.jsdelivr.net/npm/appwrite@27.0.0"></script>
+
+    <script src="sync.js"></script>
+
     <script src="theme.js"></script>
 
     <script src="music-enhancements.js"></script>
 
     <script src="music.js"></script>
 
+
+<script>
+/* پر شدن نوار پیشرفت و صدا با رنگ تم */
+(function () {
+
+    var sliders = ["proProgress", "proVolume"]
+        .map(function (id) { return document.getElementById(id); })
+        .filter(Boolean);
+
+    function paint(el) {
+
+        var min = parseFloat(el.min) || 0;
+        var max = parseFloat(el.max) || 100;
+        var value = parseFloat(el.value) || 0;
+
+        var percent = max > min ? ((value - min) / (max - min)) * 100 : 0;
+
+        el.style.setProperty("--fill", percent + "%");
+
+        el.style.setProperty(
+            "--fill-dir",
+            getComputedStyle(el).direction === "rtl" ? "to left" : "to right"
+        );
+
+    }
+
+    sliders.forEach(function (el) {
+        el.addEventListener("input", function () { paint(el); });
+        paint(el);
+    });
+
+    // پیشرفت آهنگ را خود پخش‌کننده عوض می‌کند، پس هر چند لحظه دوباره رنگ کن
+    setInterval(function () { sliders.forEach(paint); }, 250);
+
+})();
+</script>
 
 </body>
 

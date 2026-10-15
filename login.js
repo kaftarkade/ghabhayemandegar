@@ -1,457 +1,406 @@
+
 /* =========================================================
    APPWRITE
 ========================================================= */
 
-const appwriteClient = new Appwrite.Client();
+if (typeof Appwrite === "undefined") {
+    alert("کتابخانه‌ی Appwrite لود نشد. اینترنت/VPN را بررسی کن و صفحه را رفرش کن.");
+}
 
-appwriteClient
+const appwriteClient = new Appwrite.Client()
     .setEndpoint("https://cloud.appwrite.io/v1")
     .setProject("6ac3b38f000976364cad");
 
-const appwriteAccount =
-    new Appwrite.Account(appwriteClient);
+const appwriteAccount = new Appwrite.Account(appwriteClient);
+
+// شماره موبایل به‌صورت ایمیل مجازی در Appwrite ذخیره می‌شود
+const PHONE_EMAIL_DOMAIN = "example.com";
 
 
 /* =========================================================
-   APPWRITE DATABASE
+   عناصر صفحه
 ========================================================= */
 
-const appwriteDatabases =
-    new Appwrite.Databases(appwriteClient);
-
-const MEMORY_DATABASE_ID =
-    "6ac3b50f001bdd8488ff";
-
-const MEMORY_TABLE_ID =
-    "6ac3b51800052942e6b5";
+const loginTab = document.getElementById("loginTab");
+const registerTab = document.getElementById("registerTab");
+const loginForm = document.getElementById("loginForm");
+const registerForm = document.getElementById("registerForm");
+const tabs = document.querySelector(".tabs");
 
 
 /* =========================================================
-   LOGIN / REGISTER
-========================================================= */
-
-const loginTab =
-    document.getElementById("loginTab");
-
-const registerTab =
-    document.getElementById("registerTab");
-
-const loginForm =
-    document.getElementById("loginForm");
-
-const registerForm =
-    document.getElementById("registerForm");
-
-const tabs =
-    document.querySelector(".tabs");
-
-
-/* =========================================================
-   TAB SWITCH
+   جابه‌جایی بین ورود و ثبت‌نام
 ========================================================= */
 
 loginTab.addEventListener("click", function () {
-
     loginTab.classList.add("active");
     registerTab.classList.remove("active");
-
     loginForm.classList.add("active-form");
     registerForm.classList.remove("active-form");
-
     tabs.classList.remove("register-active");
-
 });
-
 
 registerTab.addEventListener("click", function () {
-
     registerTab.classList.add("active");
     loginTab.classList.remove("active");
-
     registerForm.classList.add("active-form");
     loginForm.classList.remove("active-form");
-
     tabs.classList.add("register-active");
-
 });
 
 
 /* =========================================================
-   SHOW / HIDE PASSWORD
+   نمایش / مخفی کردن رمز
 ========================================================= */
 
-const passwordButtons =
-    document.querySelectorAll(".show-password");
-
-
-passwordButtons.forEach(function (button) {
-
+document.querySelectorAll(".show-password").forEach(function (button) {
     button.addEventListener("click", function () {
+        const input = document.getElementById(button.dataset.target);
 
-        const input =
-            document.getElementById(
-                button.dataset.target
-            );
+        if (!input) return;
 
         if (input.type === "password") {
-
             input.type = "text";
             button.textContent = "🙈";
-
         } else {
-
             input.type = "password";
             button.textContent = "👁";
-
         }
-
     });
-
 });
 
 
 /* =========================================================
-   REGISTER
+   توابع کمکی
 ========================================================= */
 
-registerForm.addEventListener(
-    "submit",
-    function (event) {
+function phoneToEmail(phone) {
+    return phone + "@" + PHONE_EMAIL_DOMAIN;
+}
 
-        event.preventDefault();
+function showMsg(el, text, type) {
+    if (!el) return;
 
+    el.textContent = text;
+    el.className = "message";
 
-        const name =
-            document.getElementById(
-                "registerName"
-            ).value.trim();
+    if (type) {
+        el.classList.add(type);
+    }
+}
 
+function authErrorText(error) {
+    if (error.code === 409) {
+        return "این شماره قبلاً ثبت‌نام کرده. وارد شو.";
+    }
 
-        const phone =
-            document.getElementById(
-                "phone"
-            ).value.trim();
+    if (error.code === 401) {
+        return "شماره موبایل یا رمز عبور اشتباه است.";
+    }
 
+    if (error.code === 429) {
+        return "تعداد تلاش‌ها زیاد بود. کمی بعد دوباره امتحان کن.";
+    }
 
-        const password =
-            document.getElementById(
-                "registerPassword"
-            ).value;
+    if (error.message && error.message.includes("Failed to fetch")) {
+        return "اتصال به سرور برقرار نشد. اینترنت/VPN را بررسی کن.";
+    }
 
-
-        const password2 =
-            document.getElementById(
-                "registerPassword2"
-            ).value;
-
-
-        const message =
-            document.getElementById(
-                "registerMessage"
-            );
-
-
-        message.textContent = "";
-        message.className = "message";
+    return "خطا: " + (error.message || "نامشخص");
+}
 
 
-        /* بررسی شماره */
-
-        const phonePattern =
-            /^09[0-9]{9}$/;
-
-
-        if (!phonePattern.test(phone)) {
-
-            message.textContent =
-                "شماره موبایل باید مثل 09123456789 باشد.";
-
-            message.classList.add("error");
-
-            return;
-
-        }
+// بستن نشست قبلی Appwrite
+async function clearOldSession() {
+    try {
+        await appwriteAccount.deleteSession({ sessionId: "current" });
+    } catch (e) {
+        // اگر نشست قبلی وجود نداشت، ادامه می‌دهیم
+    }
+}
 
 
-        /* بررسی رمز */
+// ذخیره اطلاعات کاربر برای صفحات دیگر، بدون رمز عبور
+function saveLocalUser(acc) {
+    let old = {};
 
-        if (password.length < 6) {
+    try {
+        old = JSON.parse(localStorage.getItem("memoryUser") || "{}") || {};
+    } catch (e) {
+        old = {};
+    }
 
-            message.textContent =
-                "رمز عبور باید حداقل ۶ کاراکتر باشد.";
+    // اطلاعات حساب قبلی نباید به حساب دیگری منتقل شود
+    if (old.userid !== acc.$id) {
+        old = {};
+    }
 
-            message.classList.add("error");
+    delete old.password;
 
-            return;
+    const email = acc.email || "";
+    const isFakeEmail = email.endsWith("@" + PHONE_EMAIL_DOMAIN);
 
-        }
+    const user = Object.assign(old, {
+        userid: acc.$id,
+        name: acc.name,
+        phone: (acc.prefs && acc.prefs.phone) ||
+            (isFakeEmail ? email.split("@")[0] : ""),
+        email: isFakeEmail ? "" : email,
+        joinDate: new Date(acc.$createdAt).toLocaleDateString("fa-IR")
+    });
+
+    localStorage.setItem("memoryUser", JSON.stringify(user));
+    localStorage.setItem("loggedIn", "true");
+
+    // ذخیره عکس پروفایل
+    if (acc.prefs && acc.prefs.avatar) {
+        localStorage.setItem("profileImage", acc.prefs.avatar);
+    } else {
+        localStorage.removeItem("profileImage");
+    }
+}
 
 
-        /* بررسی تکرار رمز */
+// انتخاب مقصد بعد از ورود یا ثبت‌نام
+function getAfterAuthDestination(defaultUrl) {
+    const target = localStorage.getItem("afterLoginRedirect");
 
-        if (password !== password2) {
+    if (target === "gallery.html") {
+        localStorage.removeItem("afterLoginRedirect");
+        return target;
+    }
 
-            message.textContent =
-                "رمزهای عبور یکسان نیستند.";
-
-            message.classList.add("error");
-
-            return;
-
-        }
+    return defaultUrl;
+}
 
 
-        /* ساخت حساب */
+// انتقال به مقصد انتخاب‌شده
+function navigateAfterAuth(defaultUrl) {
+    const destination = getAfterAuthDestination(defaultUrl);
 
-        const user = {
+    (window.pageNavigate || function (url) {
+        window.location.href = url;
+    })(destination);
+}
 
-            name: name,
 
-            phone: phone,
+/* =========================================================
+   ثبت‌نام
+========================================================= */
 
+registerForm.addEventListener("submit", async function (event) {
+    event.preventDefault();
+
+    const name = document.getElementById("registerName").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const password = document.getElementById("registerPassword").value;
+    const password2 = document.getElementById("registerPassword2").value;
+    const message = document.getElementById("registerMessage");
+    const button = registerForm.querySelector(".submit-btn");
+
+    showMsg(message, "");
+
+    if (!name) {
+        showMsg(message, "نام را وارد کن.", "error");
+        return;
+    }
+
+    if (!/^09[0-9]{9}$/.test(phone)) {
+        showMsg(message, "شماره موبایل باید مثل 09123456789 باشد.", "error");
+        return;
+    }
+
+    if (password.length < 8) {
+        showMsg(message, "رمز عبور باید حداقل ۸ کاراکتر باشد.", "error");
+        return;
+    }
+
+    if (password !== password2) {
+        showMsg(message, "رمزهای عبور یکسان نیستند.", "error");
+        return;
+    }
+
+    button.disabled = true;
+
+    try {
+        await clearOldSession();
+
+        const email = phoneToEmail(phone);
+
+        await appwriteAccount.create({
+            userId: Appwrite.ID.unique(),
+            email: email,
             password: password,
+            name: name
+        });
 
-            joinDate:
-                new Date().toLocaleDateString("fa-IR")
+        await appwriteAccount.createEmailPasswordSession({
+            email: email,
+            password: password
+        });
 
-        };
+        try {
+            await appwriteAccount.updatePrefs({
+                prefs: { phone: phone }
+            });
+        } catch (e) {
+            console.error(e);
+        }
+
+        const acc = await appwriteAccount.get();
+
+        saveLocalUser(acc);
+
+        showMsg(message, "حساب با موفقیت ساخته شد ❤️", "success");
+
+        setTimeout(function () {
+            navigateAfterAuth("profile.html");
+        }, 1000);
+
+    } catch (error) {
+        console.error(error);
+        showMsg(message, authErrorText(error), "error");
+        button.disabled = false;
+    }
+});
 
 
-        localStorage.setItem(
-            "memoryUser",
-            JSON.stringify(user)
+/* =========================================================
+   ورود
+========================================================= */
+
+loginForm.addEventListener("submit", async function (event) {
+    event.preventDefault();
+
+    const identifier = document.getElementById("loginPhone").value.trim();
+    const password = document.getElementById("loginPassword").value;
+    const message = document.getElementById("loginMessage");
+    const button = loginForm.querySelector(".submit-btn");
+
+    showMsg(message, "");
+
+    let loginEmail = "";
+
+    if (/^09[0-9]{9}$/.test(identifier)) {
+        loginEmail = phoneToEmail(identifier);
+    } else if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier)) {
+        loginEmail = identifier.toLowerCase();
+    }
+
+    if (!loginEmail) {
+        showMsg(
+            message,
+            "شماره موبایل (مثل 09123456789) یا ایمیل را وارد کن.",
+            "error"
         );
+        return;
+    }
+
+    if (!password) {
+        showMsg(message, "رمز عبور را وارد کن.", "error");
+        return;
+    }
+
+    button.disabled = true;
+
+    try {
+        await clearOldSession();
+
+        await appwriteAccount.createEmailPasswordSession({
+            email: loginEmail,
+            password: password
+        });
+
+        const acc = await appwriteAccount.get();
+
+        saveLocalUser(acc);
+
+        showMsg(message, "خوش اومدی " + acc.name + " ❤️", "success");
+
+        setTimeout(function () {
+            navigateAfterAuth("index.html");
+        }, 1000);
+
+    } catch (error) {
+        console.error(error);
+        showMsg(message, authErrorText(error), "error");
+        button.disabled = false;
+    }
+});
 
 
-        /* ورود */
+/* =========================================================
+   فراموشی رمز عبور
+========================================================= */
 
-        localStorage.setItem(
-            "loggedIn",
-            "true"
-        );
+const forgotLink = document.getElementById("forgotLink");
+const forgotBox = document.getElementById("forgotBox");
+const forgotEmail = document.getElementById("forgotEmail");
+const forgotSend = document.getElementById("forgotSend");
+const forgotMessage = document.getElementById("forgotMessage");
 
+async function sendRecovery() {
+    if (!forgotEmail || !forgotSend || !forgotMessage) return;
 
-        message.textContent =
-            "حساب با موفقیت ساخته شد ❤️";
+    const email = forgotEmail.value.trim().toLowerCase();
 
-        message.classList.add(
+    showMsg(forgotMessage, "");
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showMsg(forgotMessage, "ایمیل معتبر وارد کن.", "error");
+        return;
+    }
+
+    forgotSend.disabled = true;
+
+    try {
+        await appwriteAccount.createRecovery({
+            email: email,
+            url: window.location.origin + "/reset.html"
+        });
+
+        showMsg(
+            forgotMessage,
+            "لینک بازیابی ارسال شد. ایمیلت (و پوشه‌ی اسپم) را چک کن.",
             "success"
         );
 
+    } catch (error) {
+        console.error(error);
 
-        /* انتقال به پروفایل */
+        if (error.code === 404) {
+            showMsg(
+                forgotMessage,
+                "حسابی با این ایمیل پیدا نشد. فقط کسانی که ایمیل بازیابی را در پروفایل ثبت کرده‌اند می‌توانند رمز را بازیابی کنند.",
+                "error"
+            );
+        } else {
+            showMsg(forgotMessage, authErrorText(error), "error");
+        }
 
-        setTimeout(function () {
-
-            window.location.href =
-                "profile.html";
-
-        }, 1000);
-
+    } finally {
+        forgotSend.disabled = false;
     }
-);
+}
 
-
-/* =========================================================
-   LOGIN
-========================================================= */
-
-loginForm.addEventListener(
-    "submit",
-    function (event) {
-
+if (forgotLink && forgotBox) {
+    forgotLink.addEventListener("click", function (event) {
         event.preventDefault();
 
+        forgotBox.style.display =
+            forgotBox.style.display === "none" ? "block" : "none";
+    });
 
-        const phone =
-            document.getElementById(
-                "loginPhone"
-            ).value.trim();
-
-
-        const password =
-            document.getElementById(
-                "loginPassword"
-            ).value;
-
-
-        const message =
-            document.getElementById(
-                "loginMessage"
-            );
-
-
-        message.textContent = "";
-        message.className = "message";
-
-
-        /* دریافت حساب */
-
-        const savedUser =
-            localStorage.getItem(
-                "memoryUser"
-            );
-
-
-        if (!savedUser) {
-
-            message.textContent =
-                "هنوز حسابی ساخته نشده. ابتدا ثبت‌نام کن.";
-
-            message.classList.add(
-                "error"
-            );
-
-            return;
-
-        }
-
-
-        const user =
-            JSON.parse(savedUser);
-
-
-        /* بررسی اطلاعات */
-
-        if (
-            phone === user.phone &&
-            password === user.password
-        ) {
-
-            localStorage.setItem(
-                "loggedIn",
-                "true"
-            );
-
-
-            message.textContent =
-                "خوش اومدی " +
-                user.name +
-                " ❤️";
-
-
-            message.classList.add(
-                "success"
-            );
-
-
-            setTimeout(function () {
-
-                window.location.href =
-                    "index.html";
-
-            }, 1000);
-
-
-        } else {
-
-            message.textContent =
-                "شماره موبایل یا رمز عبور اشتباه است.";
-
-            message.classList.add(
-                "error"
-            );
-
-        }
-
-    }
-);
-
-
-/* =========================================================
-   THEME
-========================================================= */
-
-const themeToggle =
-    document.getElementById(
-        "themeToggle"
-    );
-
-
-const themeIcon =
-    document.getElementById(
-        "themeIcon"
-    );
-
-
-function updateThemeIcon() {
-
-    if (
-        document.body.classList.contains(
-            "light-mode"
-        )
-    ) {
-
-        if (themeIcon) {
-            themeIcon.textContent = "🌙";
-        }
-
-    } else {
-
-        if (themeIcon) {
-            themeIcon.textContent = "☀️";
-        }
-
+    if (forgotSend) {
+        forgotSend.addEventListener("click", sendRecovery);
     }
 
-}
-
-
-/* دریافت تم ذخیره شده */
-
-const savedTheme =
-    localStorage.getItem("theme");
-
-
-if (savedTheme === "light") {
-
-    document.body.classList.add(
-        "light-mode"
-    );
-
-}
-
-
-updateThemeIcon();
-
-
-/* تغییر تم */
-
-if (themeToggle) {
-
-    themeToggle.addEventListener(
-        "click",
-        function () {
-
-            document.body.classList.toggle(
-                "light-mode"
-            );
-
-
-            if (
-                document.body.classList.contains(
-                    "light-mode"
-                )
-            ) {
-
-                localStorage.setItem(
-                    "theme",
-                    "light"
-                );
-
-            } else {
-
-                localStorage.setItem(
-                    "theme",
-                    "dark"
-                );
-
+    if (forgotEmail) {
+        forgotEmail.addEventListener("keydown", function (event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                sendRecovery();
             }
-
-
-            updateThemeIcon();
-
-        }
-    );
-
+        });
+    }
 }

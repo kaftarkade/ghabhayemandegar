@@ -1164,9 +1164,6 @@ document.addEventListener(
 );
 
 
-// اتصال به Appwrite
-const appwriteClient = new Appwrite.Client();
-
-appwriteClient
-    .setEndpoint('https://cloud.appwrite.io/v1')
-    .setProject('6ac3b51800052942e6b5');
+document.addEventListener("contextmenu", function(event) {
+    event.preventDefault();
+});

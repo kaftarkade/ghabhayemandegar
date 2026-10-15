@@ -46,6 +46,89 @@ try {
 
 
 /* =========================================================
+   APPWRITE (ذخیره‌ی پروفایل در دیتابیس)
+========================================================= */
+
+const appwriteClient = new Appwrite.Client()
+    .setEndpoint("https://cloud.appwrite.io/v1")
+    .setProject("6ac3b38f000976364cad");
+
+const appwriteAccount = new Appwrite.Account(appwriteClient);
+
+// تنظیمات (prefs) حساب؛ عکس پروفایل اینجا ذخیره می‌شود
+let accountPrefs = {};
+
+// تغییر prefs با گرفتن آخرین مقدار (تا چیزی پاک نشود)
+async function updateMyPrefs(patch) {
+
+    const cur = await appwriteAccount.get();
+
+    const prefs = Object.assign({}, cur.prefs, patch);
+
+    const acc = await appwriteAccount.updatePrefs({ prefs: prefs });
+
+    accountPrefs = acc.prefs || prefs;
+
+}
+
+async function saveAvatarToAccount(avatar) {
+
+    await updateMyPrefs({ avatar: avatar });
+
+}
+
+const tablesDB = new Appwrite.TablesDB(appwriteClient);
+
+const DATABASE_ID = "6ac3b50f001bdd8488ff";
+const TABLE_ID = "6ac3b51800052942e6b5";
+
+// بیوگرافی برای نمایش به بقیه در ردیف پروفایل (جدول MemoryDB) ذخیره می‌شود
+async function publishBio(bio) {
+
+    const base = {
+        userName: user.name || "کاربر",
+        bio: bio
+    };
+
+    try {
+
+        await tablesDB.updateRow({
+            databaseId: DATABASE_ID,
+            tableId: TABLE_ID,
+            rowId: user.userid,
+            data: base
+        });
+
+    } catch (error) {
+
+        if (error.code !== 404) {
+            throw error;
+        }
+
+        await tablesDB.createRow({
+            databaseId: DATABASE_ID,
+            tableId: TABLE_ID,
+            rowId: user.userid,
+            data: Object.assign({
+                userId: user.userid,
+                userAvatar: accountPrefs.avatar || "",
+                massage: "",
+                recieverid: "profile",
+                createdat: new Date().toISOString()
+            }, base),
+            permissions: [
+                Appwrite.Permission.read(Appwrite.Role.users()),
+                Appwrite.Permission.update(Appwrite.Role.user(user.userid)),
+                Appwrite.Permission.delete(Appwrite.Role.user(user.userid))
+            ]
+        });
+
+    }
+
+}
+
+
+/* =========================================================
    USER ELEMENTS
 ========================================================= */
 
@@ -70,6 +153,27 @@ const favoriteCount =
 ========================================================= */
 
 function updateUserDisplay() {
+
+    const profileBio =
+        document.getElementById("profileBio");
+
+    if (profileBio) {
+
+        profileBio.textContent =
+            user.bio || "ثبت نشده";
+
+    }
+
+    const profileEmail =
+        document.getElementById("profileEmail");
+
+    if (profileEmail) {
+
+        profileEmail.textContent =
+            user.email || "ثبت نشده";
+
+    }
+
 
     if (userName) {
 
@@ -320,6 +424,34 @@ const saveEdit =
 
 let editingField = null;
 
+// فیلد رمز عبور (فقط برای ثبت ایمیل نمایش داده می‌شود)
+const editPassword = document.createElement("input");
+
+editPassword.type = "password";
+editPassword.className = editInput.className;
+editPassword.placeholder = "رمز عبور فعلی";
+editPassword.autocomplete = "current-password";
+editPassword.style.display = "none";
+editPassword.style.marginTop = "10px";
+
+editInput.insertAdjacentElement("afterend", editPassword);
+
+// کادر چندخطی بیوگرافی
+const editBio = document.createElement("textarea");
+
+editBio.className = editInput.className;
+editBio.maxLength = 150;
+editBio.rows = 4;
+editBio.placeholder = "چند کلمه درباره‌ی خودت...";
+editBio.style.display = "none";
+editBio.style.marginTop = "10px";
+editBio.style.width = "100%";
+editBio.style.minHeight = "110px";
+editBio.style.resize = "none";
+editBio.style.fontFamily = "inherit";
+
+editPassword.insertAdjacentElement("afterend", editBio);
+
 
 /* ---------- Open Edit ---------- */
 
@@ -354,23 +486,47 @@ document
                 }
 
 
-                if (
-                    editingField === "phone"
-                ) {
+                if (editingField === "email") {
 
                     editTitle.textContent =
-                        "ویرایش شماره موبایل";
+                        "ثبت ایمیل بازیابی";
 
                     editHelp.textContent =
-                        "شماره موبایل جدیدت رو وارد کن.";
+                        "ایمیل واقعی‌ت و رمز فعلی رو وارد کن. بعد از ثبت، با همین ایمیل وارد می‌شی.";
 
                     editInput.value =
-                        user.phone || "";
+                        user.email || "";
 
                     editInput.type =
-                        "tel";
+                        "email";
 
                 }
+
+if (editingField === "bio") {
+
+                    editTitle.textContent =
+                        "ویرایش بیوگرافی";
+
+                    editHelp.textContent =
+                        "حداکثر ۱۵۰ کاراکتر. بقیه‌ی کاربران توی چت می‌بینن.";
+
+                    editBio.value =
+                        user.bio || "";
+
+                    setTimeout(function () { editBio.focus(); }, 60);
+
+                }
+
+                editInput.style.display =
+                    editingField === "bio" ? "none" : "";
+
+                editBio.style.display =
+                    editingField === "bio" ? "block" : "none";
+
+                editPassword.value = "";
+
+                editPassword.style.display =
+                    editingField === "email" ? "block" : "none";
 
 
                 editModal.classList.add(
@@ -392,110 +548,207 @@ document
     });
 
 
-/* ---------- Save Edit ---------- */
+/* ---------- Save Edit (فقط نام) ---------- */
 
 if (saveEdit) {
 
     saveEdit.addEventListener(
         "click",
-        function () {
+        async function () {
+
+            if (editingField === "bio") {
+
+                const bio =
+                    editBio.value.trim();
+
+                if (bio.length > 150) {
+                    alert("بیوگرافی حداکثر ۱۵۰ کاراکتر باشد.");
+                    return;
+                }
+
+                saveEdit.disabled = true;
+
+                try {
+
+                    await updateMyPrefs({ bio: bio });
+
+                    user.bio = bio;
+
+                    localStorage.setItem(
+                        "memoryUser",
+                        JSON.stringify(user)
+                    );
+
+                    updateUserDisplay();
+
+                    editModal.classList.remove("active");
+
+                    editingField = null;
+
+                    // نمایش برای بقیه در چت
+                    try {
+
+                        await publishBio(bio);
+
+                    } catch (publishError) {
+
+                        console.error(publishError);
+
+                        alert(
+                            "بیوگرافی ذخیره شد، ولی برای نمایش به بقیه باید توی جدول MemoryDB " +
+                            "ستونی به اسم bio اضافه کنی (String، سایز ۳۰۰، Required خاموش)."
+                        );
+
+                    }
+
+                } catch (error) {
+
+                    console.error(error);
+
+                    alert(
+                        "ذخیره‌ی بیوگرافی انجام نشد: " +
+                        (error.message || "خطای نامشخص")
+                    );
+
+                } finally {
+
+                    saveEdit.disabled = false;
+
+                }
+
+                return;
+
+            }
+
+            if (editingField === "email") {
+
+                const email =
+                    editInput.value.trim().toLowerCase();
+
+                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                    alert("ایمیل معتبر نیست.");
+                    return;
+                }
+
+                if (!editPassword.value) {
+                    alert("رمز عبور فعلی را وارد کن.");
+                    return;
+                }
+
+                saveEdit.disabled = true;
+
+                try {
+
+                    // شماره قبل از عوض شدن ایمیل در حساب ذخیره شود
+                    if (user.phone && accountPrefs.phone !== user.phone) {
+                        await updateMyPrefs({ phone: user.phone });
+                    }
+
+                    const acc =
+                        await appwriteAccount.updateEmail({
+                            email: email,
+                            password: editPassword.value
+                        });
+
+                    user.email = acc.email;
+
+                    localStorage.setItem(
+                        "memoryUser",
+                        JSON.stringify(user)
+                    );
+
+                    updateUserDisplay();
+
+                    editModal.classList.remove("active");
+
+                    editingField = null;
+
+                    alert("ایمیل ثبت شد. از این به بعد با همین ایمیل وارد شو.");
+
+                } catch (error) {
+
+                    console.error(error);
+
+                    alert(
+                        "ثبت ایمیل انجام نشد: " +
+                        (error.message || "خطای نامشخص")
+                    );
+
+                } finally {
+
+                    saveEdit.disabled = false;
+
+                }
+
+                return;
+
+            }
+
+            if (editingField !== "name") {
+                return;
+            }
 
             const value =
                 editInput.value.trim();
 
-
             if (!value) {
+                alert("لطفاً نام را وارد کن.");
+                return;
+            }
+
+            if (value.length > 40) {
+                alert("نام خیلی طولانی است (حداکثر ۴۰ کاراکتر).");
+                return;
+            }
+
+            saveEdit.disabled = true;
+
+            try {
+
+                const acc =
+                    await appwriteAccount.updateName({ name: value });
+
+                user.name = acc.name;
+
+        user.bio = accountPrefs.bio || "";
+
+                localStorage.setItem(
+                    "memoryUser",
+                    JSON.stringify(user)
+                );
+
+                updateUserDisplay();
+
+                editModal.classList.remove("active");
+
+                if (profileName) {
+
+                    profileName.animate(
+                        [
+                            { opacity: .3, transform: "translateY(5px)" },
+                            { opacity: 1, transform: "translateY(0)" }
+                        ],
+                        { duration: 400, easing: "ease" }
+                    );
+
+                }
+
+                editingField = null;
+
+            } catch (error) {
+
+                console.error(error);
 
                 alert(
-                    "لطفاً مقدار جدید را وارد کن."
+                    "ذخیره‌ی نام انجام نشد: " +
+                    (error.message || "خطای نامشخص")
                 );
 
-                return;
+            } finally {
+
+                saveEdit.disabled = false;
 
             }
-
-
-            if (
-                editingField === "phone" &&
-                value.length < 7
-            ) {
-
-                alert(
-                    "شماره موبایل وارد شده معتبر نیست."
-                );
-
-                return;
-
-            }
-
-
-            if (
-                editingField === "name"
-            ) {
-
-                user.name =
-                    value;
-
-            }
-
-
-            if (
-                editingField === "phone"
-            ) {
-
-                user.phone =
-                    value;
-
-            }
-
-
-            localStorage.setItem(
-                "memoryUser",
-                JSON.stringify(user)
-            );
-
-
-            updateUserDisplay();
-
-
-            editModal.classList.remove(
-                "active"
-            );
-
-
-            /* انیمیشن کوچک بعد از ذخیره */
-
-            const target =
-                editingField === "name"
-                    ? profileName
-                    : profilePhone;
-
-
-            if (target) {
-
-                target.animate(
-                    [
-                        {
-                            opacity: .3,
-                            transform:
-                                "translateY(5px)"
-                        },
-                        {
-                            opacity: 1,
-                            transform:
-                                "translateY(0)"
-                        }
-                    ],
-                    {
-                        duration: 400,
-                        easing: "ease"
-                    }
-                );
-
-            }
-
-
-            editingField = null;
 
         }
     );
@@ -1069,7 +1322,7 @@ if (saveCrop) {
 
     saveCrop.addEventListener(
         "click",
-        function () {
+        async function () {
 
             const canvas =
                 document.createElement(
@@ -1078,7 +1331,7 @@ if (saveCrop) {
 
 
             const outputSize =
-                500;
+                256;
 
 
             canvas.width =
@@ -1137,12 +1390,34 @@ if (saveCrop) {
             );
 
 
-            const finalImage =
-                canvas.toDataURL(
-                    "image/jpeg",
-                    .88
+            let quality = .85;
+
+            let finalImage =
+                canvas.toDataURL("image/jpeg", quality);
+
+            // حجم باید کوچک بماند (محدودیت prefs در Appwrite)
+            while (finalImage.length > 40000 && quality > .3) {
+                quality -= .1;
+                finalImage =
+                    canvas.toDataURL("image/jpeg", quality);
+            }
+
+            try {
+
+                await saveAvatarToAccount(finalImage);
+
+            } catch (error) {
+
+                console.error(error);
+
+                alert(
+                    "ذخیره‌ی عکس انجام نشد: " +
+                    (error.message || "خطای نامشخص")
                 );
 
+                return;
+
+            }
 
             localStorage.setItem(
                 "profileImage",
@@ -1391,7 +1666,26 @@ if (confirmDelete) {
 
     confirmDelete.addEventListener(
         "click",
-        function () {
+        async function () {
+
+            try {
+
+                await saveAvatarToAccount("");
+
+            } catch (error) {
+
+                console.error(error);
+
+                alert(
+                    "حذف عکس انجام نشد: " +
+                    (error.message || "خطای نامشخص")
+                );
+
+                deleteModal.classList.remove("active");
+
+                return;
+
+            }
 
             localStorage.removeItem(
                 "profileImage"
@@ -1527,15 +1821,52 @@ if (confirmLogout) {
 
     confirmLogout.addEventListener(
         "click",
-        function () {
+        async function () {
+
+            // قبل از خروج، علاقه‌مندی‌ها در حساب ذخیره شوند
+            try {
+
+                if (window.syncFavoritesNow) {
+                    await window.syncFavoritesNow();
+                }
+
+            } catch (e) {}
+
+            // از این لحظه تغییرات محلی دیگر به حساب ارسال نشود
+            window.syncFavorites = function () {};
+
+
+            try {
+
+                const c = new Appwrite.Client()
+                    .setEndpoint("https://cloud.appwrite.io/v1")
+                    .setProject("6ac3b38f000976364cad");
+
+                await new Appwrite.Account(c)
+                    .deleteSession({ sessionId: "current" });
+
+            } catch (e) {}
 
             localStorage.removeItem(
                 "loggedIn"
             );
 
+            // اطلاعات حساب روی این گوشی پاک شود
+            localStorage.removeItem("profileImage");
+            localStorage.removeItem("favoriteImages");
+            localStorage.removeItem("musicFavorites");
 
-            window.location.href =
-                "login.html";
+            Object.keys(localStorage).forEach(function (key) {
+
+                if (key.indexOf("favorite-song-") === 0) {
+                    localStorage.removeItem(key);
+                }
+
+            });
+
+
+
+            (window.pageNavigate || function (u) { window.location.href = u; })("login.html");
 
         }
     );
@@ -1921,3 +2252,104 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
 });
+
+
+/* =========================================================
+   SYNC WITH APPWRITE
+   نام و عکس پروفایل از دیتابیس خوانده می‌شود
+========================================================= */
+
+(async function syncProfile() {
+
+    try {
+
+        const acc =
+            await appwriteAccount.get();
+
+        accountPrefs = acc.prefs || {};
+
+        user.name = acc.name;
+
+        const realEmail =
+            !(acc.email || "").endsWith("@example.com");
+
+        user.email = realEmail ? acc.email : "";
+
+        user.phone =
+            accountPrefs.phone ||
+            (realEmail ? "" : acc.email.split("@")[0]);
+
+        // حساب‌های قدیمی: شماره در حساب ذخیره شود
+        if (!accountPrefs.phone && user.phone) {
+
+            updateMyPrefs({ phone: user.phone })
+                .catch(console.error);
+
+        }
+
+        localStorage.setItem(
+            "memoryUser",
+            JSON.stringify(user)
+        );
+
+        updateUserDisplay();
+
+        if (accountPrefs.avatar) {
+
+            localStorage.setItem(
+                "profileImage",
+                accountPrefs.avatar
+            );
+
+        } else {
+
+            localStorage.removeItem("profileImage");
+
+        }
+
+        loadProfileImage();
+
+    } catch (error) {
+
+        if (error.code === 401) {
+
+            localStorage.removeItem("memoryUser");
+            localStorage.removeItem("loggedIn");
+
+            window.location.href = "login.html";
+
+        } else {
+
+            console.error("خطا در همگام‌سازی پروفایل:", error);
+
+        }
+
+    }
+
+})();
+
+
+
+function goBack() {
+
+    const go = window.pageNavigate;
+
+    if (window.history.length > 1) {
+
+        if (go) {
+            go("back");
+        } else {
+            window.history.back();
+        }
+
+    } else if (go) {
+
+        go("index.html");
+
+    } else {
+
+        window.location.href = "index.html";
+
+    }
+
+}

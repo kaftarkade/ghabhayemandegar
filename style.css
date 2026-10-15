@@ -58,6 +58,35 @@
         0.4s ease;
 }
 
+body.theme-purple {
+    --main-color: #8b5cf6;
+    --main-color-2: #ec4899;
+    --main-rgb: 139, 92, 246;
+}
+
+body.theme-blue {
+    --main-color: #3b82f6;
+    --main-color-2: #06b6d4;
+    --main-rgb: 59, 130, 246;
+}
+
+body.theme-pink {
+    --main-color: #ec4899;
+    --main-color-2: #f43f5e;
+    --main-rgb: 236, 72, 153;
+}
+
+body.theme-green {
+    --main-color: #22c55e;
+    --main-color-2: #14b8a6;
+    --main-rgb: 34, 197, 94;
+}
+
+body.theme-orange {
+    --main-color: #f97316;
+    --main-color-2: #eab308;
+    --main-rgb: 249, 115, 22;
+}
 
 /* =========================================================
    03. PROFILE COLOR THEMES
@@ -467,7 +496,7 @@ audio {
 
     color: var(--white);
 
-    background: var(--profile-color, #8b5cf6);
+    background: var(--theme-gradient);
 
     border: 1px solid rgba(255, 255, 255, 0.15);
 
@@ -4978,6 +5007,380 @@ body {
 }
 
 
+/* =========================================
+   هماهنگی اجزای سایت با تم انتخاب‌شده
+========================================= */
+
+/* دکمه‌های اصلی */
+.btn,
+.main-btn {
+    background: var(--theme-gradient);
+    border-color: var(--theme-border);
+    color: #fff;
+}
+
+.btn:hover,
+.main-btn:hover {
+    background: var(--theme-gradient);
+    box-shadow: 0 10px 30px var(--theme-shadow);
+}
+
+/* لینک‌های منو */
+.mobile-menu a:hover,
+.site-nav a:hover {
+    background: var(--theme-soft);
+    color: var(--main-color);
+}
+
+/* دکمه‌های علاقه‌مندی تصاویر */
+.favorite-btn:hover,
+.lightbox-prev:hover,
+.lightbox-next:hover,
+#lightboxFavorite:hover {
+    background: var(--main-color);
+    border-color: var(--main-color);
+}
+
+/* کنترل‌های پلیر موسیقی */
+.play-btn,
+.pro-play-btn,
+.mini-player-button {
+    background: var(--theme-gradient);
+}
+
+/* نوار پیشرفت و کنترل صدا */
+#progress,
+#proProgress,
+#proVolume,
+.music-progress {
+    accent-color: var(--main-color);
+}
+
+/* کادرهای دارای تم */
+.photo-card:hover,
+.music-player .player-info:hover,
+.pro-track:hover {
+    border-color: var(--theme-border);
+}
+
+/* افکت رنگی هماهنگ */
+.photo-card:hover,
+.music-player .player-info:hover,
+.pro-music-player {
+    --card-theme-shadow: var(--theme-soft);
+}
+
+/* تغییر نرم رنگ‌ها */
+.btn,
+.main-btn,
+.favorite-btn,
+.music-favorite,
+.pro-control-btn,
+.pro-play-btn,
+.mini-player-button,
+.site-nav a,
+.mobile-menu a {
+    transition:
+        background 0.35s ease,
+        color 0.35s ease,
+        border-color 0.35s ease,
+        box-shadow 0.35s ease,
+        transform 0.25s ease;
+}
 
 
-ع
+
+/* =========================================================
+   هماهنگی رنگ تمام صفحات با رنگ انتخابی پروفایل
+========================================================= */
+
+/* رنگ اصلی دکمه‌ها */
+.btn,
+.main-btn,
+.play-btn,
+.pro-play-btn,
+.mini-player-button {
+    background: var(--theme-gradient);
+    border-color: var(--theme-border);
+}
+
+/* رنگ هنگام رفتن نشانگر روی دکمه */
+.btn:hover,
+.main-btn:hover,
+.play-btn:hover,
+.pro-play-btn:hover,
+.mini-player-button:hover {
+    box-shadow: 0 8px 24px var(--theme-shadow);
+}
+
+/* رنگ لینک‌های منو */
+.site-nav a:hover,
+.mobile-menu a:hover {
+    color: var(--main-color);
+    background: var(--theme-soft);
+}
+
+/* رنگ کادرها */
+.photo-card:hover,
+.pro-track:hover {
+    border-color: var(--theme-border);
+}
+
+/* هماهنگی رنگ آیکون‌های موردعلاقه */
+.favorite-btn:hover,
+.lightbox-prev:hover,
+.lightbox-next:hover {
+    background: var(--main-color);
+    border-color: var(--main-color);
+}
+
+/* تغییر نرم رنگ اجزا */
+.btn,
+.main-btn,
+.play-btn,
+.pro-play-btn,
+.mini-player-button,
+.site-nav a,
+.mobile-menu a,
+.photo-card {
+    transition:
+        background 0.3s ease,
+        color 0.3s ease,
+        border-color 0.3s ease,
+        box-shadow 0.3s ease;
+}
+
+
+/* =========================================================
+   دکمه‌ی تغییر تم: انیمیشن (خورشید ⇄ ماه)
+========================================================= */
+
+.theme-button {
+    overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+    background: rgba(250, 204, 21, 0.14);
+    box-shadow: 0 0 0 rgba(250, 204, 21, 0);
+    transition:
+        transform 0.35s ease,
+        background 0.5s ease,
+        box-shadow 0.5s ease;
+}
+
+.theme-button .sun,
+.theme-button .moon {
+    position: absolute;
+    inset: 0;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    transition:
+        transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1),
+        opacity 0.35s ease;
+}
+
+.theme-button .sun {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+}
+
+.theme-button .moon {
+    opacity: 0;
+    transform: rotate(-120deg) scale(0.3);
+}
+
+#theme-toggle:checked + .theme-button {
+    background: rgba(129, 140, 248, 0.16);
+    box-shadow: 0 0 22px rgba(129, 140, 248, 0.28);
+}
+
+#theme-toggle:not(:checked) + .theme-button {
+    box-shadow: 0 0 22px rgba(250, 204, 21, 0.3);
+}
+
+#theme-toggle:checked + .theme-button .sun {
+    opacity: 0;
+    transform: rotate(120deg) scale(0.3);
+}
+
+#theme-toggle:checked + .theme-button .moon {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+}
+
+.theme-button:active {
+    transform: scale(0.88);
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .theme-button,
+    .theme-button .sun,
+    .theme-button .moon {
+        transition: none;
+    }
+
+}
+
+
+/* =========================================================
+   هماهنگی رنگ صفحه‌ی آهنگ با تم سایت
+   (همه‌ی رنگ‌ها از --main-color و --main-rgb می‌آیند، پس با
+    رنگ انتخابی پروفایل عوض می‌شوند)
+========================================================= */
+
+/* منوی بالا: به‌جای بنفش ثابت، رنگ تم */
+.site-nav a:hover {
+    background: rgba(var(--main-rgb), 0.12);
+    color: var(--main-color);
+}
+
+/* قاب پخش‌کننده */
+.pro-music-player {
+    background:
+        linear-gradient(
+            145deg,
+            rgba(var(--main-rgb), 0.13),
+            rgba(var(--main-rgb), 0.04) 55%,
+            rgba(255, 255, 255, 0.02)
+        );
+    border-color: rgba(var(--main-rgb), 0.22);
+    box-shadow:
+        0 25px 70px rgba(0, 0, 0, 0.45),
+        0 0 60px rgba(var(--main-rgb), 0.10),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.pro-song-icon {
+    background:
+        linear-gradient(
+            145deg,
+            rgba(var(--main-rgb), 0.38),
+            rgba(var(--main-rgb), 0.12)
+        );
+    border: 1px solid rgba(var(--main-rgb), 0.3);
+    box-shadow: 0 10px 28px rgba(var(--main-rgb), 0.25);
+}
+
+.pro-control-btn {
+    background: rgba(var(--main-rgb), 0.12);
+    color: var(--white);
+}
+
+.pro-control-btn:hover {
+    background: rgba(var(--main-rgb), 0.26);
+}
+
+.pro-divider {
+    background: rgba(var(--main-rgb), 0.18);
+}
+
+.pro-playlist-title {
+    color: var(--main-color);
+}
+
+.pro-track {
+    border-color: rgba(var(--main-rgb), 0.08);
+}
+
+.pro-track-number {
+    color: var(--main-color);
+    opacity: 0.7;
+}
+
+.pro-track.active .pro-track-number {
+    opacity: 1;
+}
+
+/* ستاره / قلب علاقه‌مندی: رنگ تم، نه زرد ثابت */
+.music-favorite.active,
+.favorite-btn.active,
+.music-favorite-btn.active {
+    color: var(--main-color-2);
+    filter: drop-shadow(0 0 8px rgba(var(--main-rgb), 0.55));
+}
+
+/* نوار پیشرفت و صدا: بخش پر‌شده به رنگ تم */
+#proProgress,
+#proVolume {
+    --track: rgba(255, 255, 255, 0.10);
+    background:
+        linear-gradient(
+            var(--fill-dir, to right),
+            var(--main-color) 0,
+            var(--main-color-2) var(--fill, 0%),
+            var(--track) var(--fill, 0%)
+        );
+}
+
+/* حالت روشن */
+body.light-mode .pro-music-player {
+    background:
+        linear-gradient(
+            145deg,
+            rgba(var(--main-rgb), 0.10),
+            rgba(255, 255, 255, 0.95) 60%
+        );
+    border-color: rgba(var(--main-rgb), 0.22);
+    box-shadow:
+        0 25px 60px rgba(0, 0, 0, 0.10),
+        0 0 40px rgba(var(--main-rgb), 0.08);
+}
+
+body.light-mode .pro-control-btn {
+    background: rgba(var(--main-rgb), 0.10);
+    color: var(--main-color);
+}
+
+body.light-mode .pro-control-btn:hover {
+    background: rgba(var(--main-rgb), 0.20);
+}
+
+body.light-mode .pro-divider {
+    background: rgba(var(--main-rgb), 0.18);
+}
+
+body.light-mode .pro-track {
+    border-color: rgba(var(--main-rgb), 0.10);
+}
+
+body.light-mode #proProgress,
+body.light-mode #proVolume {
+    --track: rgba(0, 0, 0, 0.10);
+}
+
+/* =========================================================
+   انیمیشن ورود و خروج صفحه
+========================================================= */
+
+@keyframes pageIn  { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pageIn2 { from { opacity: 0; } to { opacity: 1; } }
+
+body {
+    animation: pageIn 0.45s ease backwards;
+}
+
+/* وقتی از حافظه‌ی مرورگر (دکمه‌ی برگشت) صفحه برمی‌گردد */
+body.page-enter {
+    animation: pageIn2 0.45s ease backwards;
+}
+
+@keyframes pageOut { from { opacity: 1; } to { opacity: 0; } }
+
+body.page-leave {
+    animation: pageOut 0.26s ease forwards !important;
+    pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    body,
+    body.page-enter {
+        animation: none;
+    }
+
+    body.page-leave {
+        animation: none !important;
+        opacity: 0;
+    }
+
+}

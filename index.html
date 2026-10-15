@@ -38,41 +38,75 @@
     </label>
 
 
-    <!-- ================= منوی واحد ================= -->
+     <!-- ================= DESKTOP NAV ================= -->
 
-    <nav class="site-nav">
+        <nav class="desktop-nav">
 
-        <a
-            href="login.html"
-            id="accountLink"
-        >
-            👤 ورود / ثبت‌نام
-        </a>
+<a
+                href="login.html"
+                class="account-link"
+            >
+                 👤 ورود / ثبت‌نام
+            </a>
+            
+            <a href="massages.html">
+                 💬 پیام‌رسان
+            </a>
+
+            <a href="gallery.html">
+                تصاویر
+            </a>
+
+            <a href="musics.html">
+                آهنگ
+            </a>
+
+            <a href="https://eitaa.com/@matin_7451">
+                ارتباط با ما
+            </a>
+
+        </nav>
 
 
-        <a href="massages beta.html">
+        <!-- ================= MOBILE NAV ================= -->
+
+        <nav class="mobile-menu">
+
+            <!-- ACCOUNT -->
+
+            <a
+                href="login.html"
+                class="account-link"
+            >
+                👤 ورود / ثبت‌نام
+            </a>
+
+            <a href="massages.html">
             💬 پیام‌رسان
-        </a>
+            </a>
+
+            <!-- GALLERY -->
+
+            <a href="gallery.html">
+                تصاویر
+            </a>
 
 
-        <a href="gallery.html">
-            تصاویر
-        </a>
+            <!-- MUSICS -->
 
+            <a href="musics.html">
+                آهنگ
+            </a>
 
-        <a href="musics.html">
-            آهنگ
-        </a>
+            <!-- EITAA -->
 
+<a href="https://abrehamrahi.ir/o/public/2quBbcwi/._">دانلود برنامه نسخه قبلی</a>
 
-        <p>
- <a href="https://s7.uplod.ir:182/d/3w222r4e4hvhuf6tfsnyhl3f6hspze5tvokmhznflylquuiizznqefodrfmmec2d7h6luevk/ghab_haye_mandegar._">دانلود برنامه نسخه قبلی</a>
-</p>
- 
+            <!-- CONTACT -->
 
-        <a href="https://eitaa.com/@matin_7451">
-            ارتباط با ما
-        </a>
+            <a href="https://eitaa.com/@matin_7451">
+                ارتباط با ما
+            </a>
 
 
         <!-- تغییر حالت روشن / تاریک -->
@@ -144,10 +178,44 @@
 
     </footer>
 
-<script src="script.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/appwrite@27.0.0"></script>
+
+    <script src="sync.js"></script>
+
+    <script src="script.js"></script>
 
 <script src="theme.js"></script>
 
+<!-- وضعیت ورود: لینک حساب در منوی دسکتاپ و موبایل -->
+<script>
+(function () {
+
+    function updateAccountLinks() {
+
+        var links = document.querySelectorAll(".account-link");
+
+        var logged = false;
+
+        try {
+            logged = !!localStorage.getItem("memoryUser") &&
+                     localStorage.getItem("loggedIn") === "true";
+        } catch (e) {}
+
+        links.forEach(function (link) {
+            link.textContent = logged ? "👤 پروفایل" : "👤 ورود / ثبت‌نام";
+            link.setAttribute("href", logged ? "profile.html" : "login.html");
+        });
+
+    }
+
+    updateAccountLinks();
+
+    window.addEventListener("pageshow", updateAccountLinks);
+    window.addEventListener("focus", updateAccountLinks);
+
+})();
+</script>
+
 </body>
 
-</html
+</html>
