@@ -4812,7 +4812,7 @@ body.light-mode .music-progress {
 
 /* موبایل */
 
-@media (max-width: 600px) {
+@media (max-width: 600px) {font: ;
 
     .gallery {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -4866,7 +4866,7 @@ body.light-mode .music-progress {
         display: flex;
 
         flex-direction: column;
-
+)
         align-items: stretch;
 
         gap: 6px;
